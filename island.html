@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ island.name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> <!-- HLS.js for M3U8 playback -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #333;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            object-fit: cover; /* Maintain aspect ratio */
+        }
+        .video-container {
+            margin-top: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 315px;
+            border-radius: 10px;
+            border: none;
+        }
+        .creator-box {
+            background: #222;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .creator-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+        .social-links a {
+            color: #1e90ff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .back-button {
+            display: block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #555;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-button:hover {
+            background: #777;
+        }
+        .tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tag {
+            background: #444;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        /* M3U8 Video Button */
+        .play-video-btn {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        .play-video-btn::after {
+            content: "▶";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            background: black;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        video {
+            width: 100%;
+            border-radius: 10px;
+        }
+        /* Image Modal Specific Styles */
+        .image-modal-content {
+            background: transparent;
+            max-width: 90%;
+            max-height: 90vh;
+            padding: 0;
+        }
+        #modalImage {
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Island Name -->
+        <h1>{{ island.name }}</h1>
+        
+        <!-- Creator Information -->
+        <h2>Created by {{ island.creator.name }}</h2>
+        
+        <script>
+            // Image Modal open/close functions
+            function openImageModal(imageSrc) {
+                const modal = document.getElementById('imageModal');
+                const modalImage = document.getElementById('modalImage');
+                modal.style.display = 'flex';
+                modalImage.src = imageSrc;
+            }
+
+            function closeImageModal() {
+                const modal = document.getElementById('imageModal');
+                modal.style.display = 'none';
+            }
+            
+            // Video Modal open/close functions
+            function openVideoModal(videoUrl) {
+                const modal = document.getElementById("videoModal");
+                const video = document.getElementById("videoPlayer");
+
+                modal.style.display = "flex"; // Open modal
+
+                // Reset video source before attaching new source
+                video.src = "";
+                video.load(); // Reload video element
+
+                // Use HLS.js for M3U8 playback
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(videoUrl);
+                    hls.attachMedia(video);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        video.play(); // Play the video once loaded
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = videoUrl; // Fallback for native support
+                    video.play();
+                }
+            }
+
+            function closeVideoModal() {
+                const modal = document.getElementById("videoModal");
+                const video = document.getElementById("videoPlayer");
+
+                modal.style.display = "none"; // Close modal
+                video.pause(); // Pause video
+                video.src = ""; // Clear video source
+                video.load(); // Reset video element
+            }
+
+            window.onclick = function(event) {
+                const videoModal = document.getElementById("videoModal");
+                const imageModal = document.getElementById("imageModal");
+                
+                if (event.target === videoModal) {
+                    closeVideoModal(); // Close video modal when clicked outside
+                }
+                
+                if (event.target === imageModal) {
+                    closeImageModal(); // Close image modal when clicked outside
+                }
+            }
+        </script>
+
+        <img src="{{ island.image }}" alt="{{ island.name }}" onclick="openImageModal('{{ island.image }}')">
+        
+        <p><strong>Code:</strong> {{ code }}</p>
+        <p><strong>Release Date:</strong> {{ island.release_date }}</p>
+        <p><strong>Last Updated:</strong> {{ island.updated_date }}</p>
+        <p><strong>Player Count:</strong> {{ island.player_count }}</p>
+        <p>{{ island.description }}</p>
+
+        {% if island.m3u8_url and island.image %}
+        <div class="play-video-btn" onclick="openVideoModal('{{ island.m3u8_url }}')" style="background-image:url('{{ island.image }}')"></div>
+        {% endif %}
+
+        <div class="tags">
+            {% for tag in island.tags %}
+                <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="creator-box">
+            <img src="{{ island.creator.logo }}" alt="Creator Logo" class="creator-logo">
+            <p>{{ island.creator.bio }}</p>
+            <div class="social-links">
+                {% if island.creator.social.youtube and island.creator.social.youtube != 'None' %}
+                    <a href="{{ island.creator.social.youtube }}" target="_blank">YouTube</a>
+                {% endif %}
+                {% if island.creator.social.twitter and island.creator.social.twitter != 'None' %}
+                    <a href="{{ island.creator.social.twitter }}" target="_blank">Twitter</a>
+                {% endif %}
+                {% if island.creator.social.discord and island.creator.social.discord != 'None' %}
+                    <a href="{{ island.creator.social.discord }}" target="_blank">Discord</a>
+                {% endif %}
+                {% if island.creator.social.tiktok and island.creator.social.tiktok != 'None' %}
+                    <a href="{{ island.creator.social.tiktok }}" target="_blank">TikTok</a>
+                {% endif %}
+                {% if island.creator.social.instagram and island.creator.social.instagram != 'None' %}
+                    <a href="{{ island.creator.social.instagram }}" target="_blank">Instagram</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <a class="back-button" href="/creator/{{island.creator.name}}">Back to Creator</a>
+    </div>
+
+    <!-- M3U8 Video Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeVideoModal()">&times;</span>
+            <video id="videoPlayer" controls></video>
+        </div>
+    </div>
+    
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content image-modal-content">
+            <span class="close-btn" onclick="closeImageModal()">&times;</span>
+            <img id="modalImage" style="width:70%; max-height:80vh; object-fit:contain;" src=""/>
+        </div>
+    </div>
+</body>
+</html>

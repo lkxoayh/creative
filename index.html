@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Search</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d0d0d;
+            color: #fff;
+        }
+        header {
+            background-color: #1f1f1f;
+            padding: 20px; 
+            text-align: center;
+        }
+        .search-container {
+            margin: 30px auto;
+            text-align: center;
+        }
+        .search-box {
+            width: 60%;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            background-color: #2a2a2a;
+            color: #fff;
+            text-align: center;
+        }
+        .creator-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .creator-card {
+            background-color: #333;
+            border-radius: 10px;
+            width: 220px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        .creator-card:hover {
+            transform: scale(1.05);
+        }
+        .creator-card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .creator-card h3 {
+            margin-top: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .creator-card p {
+            font-size: 14px;
+            color: #bbb;
+        }
+        .creator-card a {
+            text-decoration: none;
+            color: #ff8c00;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .creator-card a:hover {
+            text-decoration: underline;
+        }
+        .loading-spinner {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .loading-spinner span {
+            display: block;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Creator Search</h1>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="searchCreator" class="search-box" placeholder="Search for a creator..." oninput="searchCreator()">
+    </div>
+
+    <div id="loading" class="loading-spinner" style="display: none;">
+        <span>Loading...</span>
+    </div>
+
+    <div id="creatorGrid" class="creator-grid">
+        <!-- Creator cards will be dynamically injected here -->
+    </div>
+
+    <script>
+        document.getElementById('searchCreator').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchCreator();  // Trigger search when Enter is pressed
+            }
+        });
+
+        function searchCreator() {
+            const query = document.getElementById('searchCreator').value.trim().toLowerCase();
+            if (!query) {
+                document.getElementById('creatorGrid').innerHTML = ''; // Clear the grid if query is empty
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block'; // Show loading spinner
+
+            fetch(`/search_creator?name=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none'; // Hide loading spinner
+
+                    const creatorGrid = document.getElementById('creatorGrid');
+                    creatorGrid.innerHTML = ''; // Clear previous results
+
+                    // If no creators are found, display a message
+                    if (data.length === 0) {
+                        creatorGrid.innerHTML = '<p style="text-align: center;">No creators found</p>';
+                    } else {
+                        data.forEach(creator => {
+                        const card = document.createElement('div');
+                        card.className = 'creator-card';
+
+                        // Check if there is exactly one creator, then enable the banner
+                        const bannerHtml = data.length === 1 
+                            ? `<div class="creator-banner">
+                                <img src="${creator.banner}" alt="${creator.name} Banner">
+                            </div>` 
+                            : '';  // If there are more than one, don't include the banner
+
+                        card.innerHTML = `
+                            ${bannerHtml}  <!-- Dynamically adding the banner if only one creator -->
+                            <div class="creator-logo">
+                                <img src="${creator.logo}" alt="${creator.name} Logo">
+                            </div>
+                            <h3>${creator.name}</h3>
+                            <p>Creator ID: ${creator.name}</p>
+                            <a href="/creator/${creator.name}" target="_blank">View Profile</a>
+                        `;
+                        creatorGrid.appendChild(card);
+                    });
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none'; // Hide loading spinner in case of error
+                    console.error('Error fetching creators:', error);
+                });
+        }
+    </script>
+</body>
+</html>
