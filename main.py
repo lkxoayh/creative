@@ -185,6 +185,93 @@ def update_island(name):
     islands_data = data
     return jsonify({"message": f"Island updated successfully."}), 200
 
+@app.route('/database')
+def creatordatabase():
+    creators = get_all_creators()
+    
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Creators Database</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            h1 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 12px 15px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            tr:hover {
+                background-color: #f9f9f9;
+            }
+            .count {
+                text-align: center;
+                margin-top: 20px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Creators Database</h1>
+            <div class="count">Total Creators: {count}</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Creator Name</th>
+                        <th>Creator ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {table_rows}
+                </tbody>
+            </table>
+        </div>
+    </body>
+    </html>
+    """
+    
+    # Generate table rows from creators data
+    table_rows = ""
+    for name, creator_id in creators.items():
+        table_rows += f"<tr><td>{name}</td><td>{creator_id}</td></tr>\n"
+    
+    # Replace placeholders with actual data
+    html_content = html_content.format(
+        count=len(creators),
+        table_rows=table_rows
+    )
+    
+    return html_content
+
 @app.route("/island/<code>")
 def island_detail(code):
     min_play_count = 1
