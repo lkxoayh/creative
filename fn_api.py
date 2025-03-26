@@ -735,3 +735,6 @@ def create_task():
 super_token = GetTokenPC()
 no_eg1_token = GetTokenPCNotEG1()
 public_token = GetTokenPublic()
+user_agent = 'Fortnite/++Fortnite+Release-34.20-CL-40965447 Windows/10.0.19045.1.256.64bit'
+version, digits = user_agent[user_agent.index("Release-") + len("Release-") : user_agent.index("-CL-")], user_agent[user_agent.index("CL-") + len("CL-") : user_agent.index(" W")]
+disco_token = access_discovery(branch=f"++Fortnite+Release-{version}")
