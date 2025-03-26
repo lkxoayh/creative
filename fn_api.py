@@ -135,6 +135,7 @@ def creatorpage_disco(creator_id):
     headers["Content-Length"] = "336"
 
     resp = session.post(url, headers=headers, json=data).json()
+    print(resp)
     return resp
 
 def discoveryv2():
