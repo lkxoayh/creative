@@ -8,3 +8,4 @@ pycryptodomex==3.21.0
 browser-cookie3==0.20.1
 tls-client==1.0.1
 typing-extensions==4.13.0
+PyExecJS==1.5.1
