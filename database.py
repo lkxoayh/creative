@@ -59,12 +59,8 @@ def get_all_creators_with_none():
     #print("ID of 'meexal':", get_creator_id('meexal'))  
     #print("Name of ID '36c7012a4f5b40069bab68ae374e4f2e':", get_creator_name('36c7012a4f5b40069bab68ae374e4f2e'))  
     #print("All creators:", get_all_creators())
-    
-for k, v in creators_db.items():
-    if k == None:
-        print(k, v)
 
-print("ID of 'apfel':", get_creator_id('apfel'))
-creators = get_all_creators()
+#print("ID of 'apfel':", get_creator_id('apfel'))
+#creators = get_all_creators()
     
-print(len(creators))
+#print(len(creators))
