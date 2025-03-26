@@ -690,7 +690,7 @@ async def teak_complet():
         super_token = GetTokenPC()
         no_eg1_token = GetTokenPCNotEG1()
         public_token = GetTokenPublic()
-        user_agent = session.get('http://192.168.1.34:8000/version').json()['version']
+        user_agent = 'Fortnite/++Fortnite+Release-34.20-CL-40965447 Windows/10.0.19045.1.256.64bit'
         #print(user_agent)
         version, digits = user_agent[user_agent.index("Release-") + len("Release-") : user_agent.index("-CL-")], user_agent[user_agent.index("CL-") + len("CL-") : user_agent.index(" W")]
         #print(version + digits)
