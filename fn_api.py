@@ -724,7 +724,7 @@ async def teak_complet():
         #print(user_agent)
         version, digits = user_agent[user_agent.index("Release-") + len("Release-") : user_agent.index("-CL-")], user_agent[user_agent.index("CL-") + len("CL-") : user_agent.index(" W")]
         #print(version + digits)
-        #disco_token = access_discovery(branch=f"++Fortnite+Release-{version}")
+        disco_token = access_discovery(branch=f"++Fortnite+Release-{version}")
         print('Connected Fortnite Service !')
         await asyncio.sleep(3600)
     
