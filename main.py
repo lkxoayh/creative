@@ -3,6 +3,7 @@ import fn_api
 import asyncio
 import threading
 import time
+import json
 
 from utils.api import Api
 from flask import Flask, render_template_string, request, jsonify, abort, send_from_directory
@@ -146,6 +147,67 @@ def get_live_ccu_for_creator(creatorid):
     
     return jsonify(data_json)
 
+def get_featured_islands(creator_page):
+    """Extract featured islands from a creator page"""
+    for panel in creator_page.panels:
+        if panel.panel_name == "Featured":
+            return panel.first_page.results
+    return []
+
+def get_creator_picks(creator_page):
+    """Extract creator picks from a creator page"""
+    for panel in creator_page.panels:
+        if panel.panel_name == "CreatorPicks":
+            return panel.first_page.results
+    return []
+
+def format_ccu(ccu: int) -> str:
+    """Format CCU (Concurrent Users) for display"""
+    if ccu == -1:
+        return "0"
+    elif ccu >= 1000:
+        return f"{round(ccu / 1000, 1)}K"
+    else:
+        return str(ccu)
+    
+def parse_creator_page(json_data):
+    """Parse creator page JSON and extract island information"""
+    # Load the JSON if it's a string
+    data = json_data
+    
+    # Initialize the result dictionary
+    result = {
+        "featured": 'None',
+        "picks": 'None'
+    }
+    
+    # Process each panel
+    panels = data.get("panels", [])
+    for panel in panels:
+        panel_name = panel.get("panelName", "")
+        first_page = panel.get("firstPage", {})
+        islands = first_page.get("results", [])
+        
+        # Determine which list to add to
+        if panel_name == "Featured" and islands:
+            target_list = []
+            result["featured"] = target_list
+        elif panel_name == "CreatorPicks" and islands:
+            target_list = []
+            result["picks"] = target_list
+        else:
+            continue
+        
+        # Add islands to the appropriate list
+        for island in islands:
+            island_info = {
+                "code": island.get("linkCode", ""),
+                "ccu": format_ccu(island.get("globalCCU", -1)),
+            }
+            target_list.append(island_info)
+    
+    return result
+
 @app.route('/creator/<string:name>')
 def creator(name):
     global name_creator
@@ -158,12 +220,48 @@ def creator(name):
         insert_creator(name, creator_id)
         
     logo, bio, follow, socials, banner = get_logo_and_banner_url(creator_id, "dev")
-                
-    print(socials)
     
     follow_display = f"{round(follow/1000, 1)}K" if follow >= 1000 else str(follow)
+    creator_page = fn_api.creatorpage_disco(creator_id)
+    data = parse_creator_page(creator_page)
+    
+    dev = {
+        'featured': 'None',
+        'picks': 'None'
+    }
+    
+    if data['featured'] != 'None':
+        island_codes = [{"mnemonic": f"{x['code']}"} for x in data['featured']]
+        info = fn_api.island_more1(island=island_codes)
+        for island in info:
+            # Find matching island in data['featured'] list
+            matching_island = next((x for x in data['featured'] if x['code'] == island['mnemonic']), None)
+            ccu_value = matching_island['ccu'] if matching_island else "0"
+            dev['featured'] = []
+            dev['featured'].append({
+                'code': island['mnemonic'],
+                'name': remove_newline(island['metadata']['title']),
+                'image': _get_image(island['metadata']),
+                'ccu': ccu_value
+            })
+    if data['picks'] != 'None':
+        island_codes = [{"mnemonic": f"{x['code']}"} for x in data['picks']]
+        info = fn_api.island_more1(island=island_codes)
+        for island in info:
+            # Find matching island in data['picks'] list
+            matching_island = next((x for x in data['picks'] if x['code'] == island['mnemonic']), None)
+            ccu_value = matching_island['ccu'] if matching_island else "0"
+            
+            dev['picks'] = []
+            dev['picks'].append({
+                'code': island['mnemonic'],
+                'name': remove_newline(island['metadata']['title']),
+                'image': _get_image(island['metadata']),
+                'ccu': ccu_value
+            })
         
     context = {
+        "creator": dev,
         "creatorlogo": logo,
         "creatorbanner": banner,
         "creator_id": creator_id,
@@ -189,10 +287,18 @@ def update_island(name):
 def creatordatabase():
     creators = get_all_creators()
     
-    # Generate table rows first
-    table_rows = ""
+    # Generate creator cards instead of table rows
+    creator_cards = ""
     for name, creator_id in creators.items():
-        table_rows += f"<tr><td>{name}</td><td>{creator_id}</td></tr>\n"
+        creator_cards += f"""
+        <div class="creator-card">
+            <div class="creator-avatar">
+                <img src="{DEFAULT_LOGO}" alt="{name}'s avatar">
+            </div>
+            <div class="creator-name">{name}</div>
+            <div class="creator-id">{creator_id}</div>
+        </div>
+        """
     
     # Create HTML with f-string instead of .format()
     html_content = f"""<!DOCTYPE html>
@@ -205,61 +311,140 @@ def creatordatabase():
         body {{ 
             font-family: Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: #0a1525;
+            color: #ffffff;
+        }}
+        .header {{
+            background-color: #0a1525;
             padding: 20px;
-            background-color: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
         }}
-        .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        h1 {{
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-        }}
-        th, td {{
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }}
-        th {{
-            background-color: #f2f2f2;
+        .tab {{
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #132236;
+            border-radius: 20px;
+            margin-right: 10px;
             font-weight: bold;
         }}
-        tr:hover {{
-            background-color: #f9f9f9;
+        .active {{
+            background-color: #ffffff;
+            color: #0a1525;
+        }}
+        .container {{
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        h1 {{
+            color: #ffffff;
+            margin-bottom: 20px;
         }}
         .count {{
+            font-size: 16px;
+            color: #8b949e;
+            margin-bottom: 30px;
+        }}
+        .creator-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }}
+        .creator-card {{
+            background-color: #132236;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s;
+            overflow: hidden;
+        }}
+        .creator-card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }}
+        .creator-avatar {{
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }}
+        .creator-avatar img {{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }}
+        .creator-name {{
+            font-weight: bold;
+            margin-bottom: 5px;
             text-align: center;
-            margin-top: 20px;
-            color: #666;
+        }}
+        .creator-id {{
+            font-size: 12px;
+            color: #8b949e;
+            text-align: center;
+            word-break: break-all;
+        }}
+        .search-bar {{
+            padding: 10px;
+            margin-bottom: 20px;
+        }}
+        .search-input {{
+            width: 100%;
+            max-width: 300px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            background-color: #1e293b;
+            color: white;
         }}
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Creators Database</h1>
-        <div class="count">Total Creators: {len(creators)}</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Creator Name</th>
-                    <th>Creator ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                {table_rows}
-            </tbody>
-        </table>
+    <div class="header">
+        <div>
+            <div class="tab">ISLANDS (48)</div>
+            <div class="tab active">CREATORS ({len(creators)})</div>
+        </div>
     </div>
+    
+    <div class="container">
+        <h1>Creators Results</h1>
+        <div class="count">Total Creators: {len(creators)}</div>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="Search creators..." class="search-input" id="searchInput">
+        </div>
+        
+        <div class="creator-grid" id="creatorGrid">
+            {creator_cards}
+        </div>
+    </div>
+    
+    <script>
+        // Simple search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {{
+            const searchValue = this.value.toLowerCase();
+            const creatorCards = document.querySelectorAll('.creator-card');
+            
+            creatorCards.forEach(card => {{
+                const creatorName = card.querySelector('.creator-name').textContent.toLowerCase();
+                const creatorId = card.querySelector('.creator-id').textContent.toLowerCase();
+                
+                if (creatorName.includes(searchValue) || creatorId.includes(searchValue)) {{
+                    card.style.display = 'flex';
+                }} else {{
+                    card.style.display = 'none';
+                }}
+            }});
+        }});
+    </script>
 </body>
 </html>"""
     
