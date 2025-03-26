@@ -1400,3 +1400,7 @@ async def teak_complet():
     
 def create_task():
     asyncio.run(teak_complet())
+
+super_token = GetTokenPC()
+no_eg1_token = GetTokenPCNotEG1()
+public_token = GetTokenPublic()
