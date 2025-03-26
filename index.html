@@ -3,101 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Search</title>
+    <title>Fortnite Creators</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #0d0d0d;
+            background-color: #0a1525;
             color: #fff;
         }
-        header {
-            background-color: #1f1f1f;
-            padding: 20px; 
-            text-align: center;
-        }
+        
         .search-container {
-            margin: 30px auto;
-            text-align: center;
+            max-width: 800px;
+            margin: 30px auto 20px;
+            padding: 0 20px;
+            position: relative;
         }
+        
         .search-box {
-            width: 60%;
-            padding: 15px;
-            font-size: 18px;
+            width: 100%;
+            padding: 15px 20px;
+            padding-right: 50px;
+            background-color: #43395a;
+            border: none;
             border-radius: 25px;
-            border: 1px solid #ccc;
-            background-color: #2a2a2a;
-            color: #fff;
-            text-align: center;
+            color: white;
+            font-size: 18px;
+            outline: none;
         }
+        
+        .search-box::placeholder {
+            color: #ffffffbb;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 20px;
+        }
+        
         .creator-grid {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
             padding: 20px;
+            gap: 15px;
+            justify-content: center;
         }
-        .creator-card {
-            background-color: #333;
-            border-radius: 10px;
-            width: 220px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
+        
+        .creator-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            margin-bottom: 15px;
         }
-        .creator-card:hover {
-            transform: scale(1.05);
+        
+        .creator-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 8px;
         }
-        .creator-card img {
+        
+        .creator-avatar img {
             width: 100%;
-            border-radius: 10px;
+            height: 100%;
+            object-fit: cover;
         }
-        .creator-card h3 {
-            margin-top: 10px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .creator-card p {
+        
+        .creator-name {
+            text-align: center;
             font-size: 14px;
-            color: #bbb;
+            color: #fff;
         }
-        .creator-card a {
-            text-decoration: none;
-            color: #ff8c00;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .creator-card a:hover {
-            text-decoration: underline;
-        }
+        
         .loading-spinner {
             text-align: center;
             margin-top: 50px;
+            display: none;
         }
-        .loading-spinner span {
-            display: block;
-            font-size: 24px;
+        
+        .loading-spinner i {
+            font-size: 40px;
+            color: #fff;
+            animation: spin 1s infinite linear;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .creator-banner {
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .creator-banner img {
+            width: 100%;
+            height: auto;
+        }
+        
+        .creator-details {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .creator-details h3 {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        
+        .creator-details p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .creator-details a {
+            display: inline-block;
+            margin-top: 10px;
+            color: #5ba1ff;
+            text-decoration: none;
+        }
+        
+        .creator-details a:hover {
+            text-decoration: underline;
+        }
+        
+        .no-results {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 18px;
+            color: #ccc;
+        }
+        
+        /* Style for single creator view with banner */
+        .single-creator {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Creator Search</h1>
-    </header>
-
     <div class="search-container">
-        <input type="text" id="searchCreator" class="search-box" placeholder="Search for a creator..." oninput="searchCreator()">
+        <input type="text" class="search-box" id="searchCreator" placeholder="Search for Islands or Creators...">
+        <i class="fas fa-search search-icon"></i>
     </div>
 
-    <div id="loading" class="loading-spinner" style="display: none;">
-        <span>Loading...</span>
+    <div id="loading" class="loading-spinner">
+        <i class="fas fa-spinner"></i>
     </div>
 
     <div id="creatorGrid" class="creator-grid">
-        <!-- Creator cards will be dynamically injected here -->
+        <!-- Fortnite creators with "w" prefix -->
     </div>
 
     <script>
@@ -126,35 +193,55 @@
 
                     // If no creators are found, display a message
                     if (data.length === 0) {
-                        creatorGrid.innerHTML = '<p style="text-align: center;">No creators found</p>';
+                        creatorGrid.innerHTML = '<div class="no-results">No creators found</div>';
                     } else {
                         data.forEach(creator => {
-                        const card = document.createElement('div');
-                        card.className = 'creator-card';
+                            // Check if there is exactly one creator
+                            if (data.length === 1) {
+                                // Create single creator view with banner
+                                const singleCreator = document.createElement('div');
+                                singleCreator.className = 'creator-item';
+                                
+                                singleCreator.innerHTML = `
+                                    <div class="creator-avatar">
+                                        <img src="${creator.logo}" alt="${creator.name} Logo">
+                                    </div>
+                                    <div class="creator-name">${creator.name}</div>
+                                `;
 
-                        // Check if there is exactly one creator, then enable the banner
-                        const bannerHtml = data.length === 1 
-                            ? `<div class="creator-banner">
-                                <img src="${creator.banner}" alt="${creator.name} Banner">
-                            </div>` 
-                            : '';  // If there are more than one, don't include the banner
-
-                        card.innerHTML = `
-                            ${bannerHtml}  <!-- Dynamically adding the banner if only one creator -->
-                            <div class="creator-logo">
-                                <img src="${creator.logo}" alt="${creator.name} Logo">
-                            </div>
-                            <h3>${creator.name}</h3>
-                            <p>Creator ID: ${creator.name}</p>
-                            <a href="/creator/${creator.name}" target="_blank">View Profile</a>
-                        `;
-                        creatorGrid.appendChild(card);
-                    });
+                                // Add click event to view full profile
+                                singleCreator.addEventListener('click', function() {
+                                    window.location.href = `/creator/${creator.name}`;
+                                });
+                                
+                                creatorGrid.appendChild(singleCreator);
+                            } else {
+                                // Create grid item for multiple results
+                                const card = document.createElement('div');
+                                card.className = 'creator-item';
+                                
+                                card.innerHTML = `
+                                    <div class="creator-avatar">
+                                        <img src="${creator.logo}" alt="${creator.name} Logo">
+                                    </div>
+                                    <div class="creator-name">${creator.name}</div>
+                                `;
+                                
+                                // Add click event to view full profile
+                                card.addEventListener('click', function() {
+                                    window.location.href = `/creator/${creator.name}`;
+                                });
+                                
+                                creatorGrid.appendChild(card);
+                            }
+                        });
                     }
                 })
                 .catch(error => {
                     document.getElementById('loading').style.display = 'none'; // Hide loading spinner in case of error
                     console.error('Error fetching creators:', error);
+                    document.getElementById('creatorGrid').innerHTML = 
+                        '<div class="no-results">Error loading creators. Please try again.</div>';
                 });
         }
     </script>
