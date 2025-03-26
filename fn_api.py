@@ -698,7 +698,7 @@ async def teak_complet():
         print('Connected Fortnite Service !')
         await asyncio.sleep(3600)
     
-def create_task():
-    asyncio.run(teak_complet())
-
-create_task()
+def start_background_tasks():
+    """Start background token refresh task"""
+    loop = asyncio.get_event_loop()
+    loop.create_task(epic_api.teak_complet())
