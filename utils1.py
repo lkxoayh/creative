@@ -1,10 +1,8 @@
 import re
-import discord
 import fn_api
 import random
 
 from functools import lru_cache
-from discord import Embed
 from database import get_creator_id
 
 creative = '<:cr:1265623417269387266>'
