@@ -267,11 +267,8 @@ def island_detail(code):
         return "Island not found", 404
 
 def run_async_task():
-    loop = asyncio.new_event_loop()  # Create a new event loop
-    asyncio.set_event_loop(loop)  
-    loop.run_until_complete(fn_api.create_task())  # Run the async function
+    fn_api.create_task() # Run the async function
     print('test')
-    loop.close() 
 
 if __name__ == '__main__':
     thread = threading.Thread(target=run_async_task, daemon=True)
