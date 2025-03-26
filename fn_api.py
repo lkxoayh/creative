@@ -700,3 +700,5 @@ async def teak_complet():
     
 def create_task():
     asyncio.run(teak_complet())
+
+create_task()
