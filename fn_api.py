@@ -1352,7 +1352,7 @@ def info_creators(creatorid):
     return w
 
 def info_creators_multiple(creators):
-    print(super_token)
+    print('token',super_token)
     w = session.post(
         f"https://pops-api-live-public.ogs.live.on.epicgames.com/page/v1?playerId={client_id}&locale=en",
         headers={"Authorization": f"Bearer {super_token}", "User-Agent": user_agent, "X-Epic-Source-Client-Type": "fn-client"},
