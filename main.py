@@ -266,11 +266,7 @@ def island_detail(code):
     else:
         return "Island not found", 404
 
-def run_async_task():
-    fn_api.create_task() # Run the async function
-    print('test')
-
 if __name__ == '__main__':
-    thread = threading.Thread(target=run_async_task, daemon=True)
+    thread = threading.Thread(target=fn_api.create_task, daemon=True)
     thread.start()
     app.run(host="0.0.0.0",debug=True)
