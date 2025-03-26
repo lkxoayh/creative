@@ -55,7 +55,6 @@ def info_creators_multiple(user_ids):
 
 @app.route('/search_creator')
 def search_creator():
-    time.sleep(0.1)
     query = request.args.get('name', '').strip().lower()
     creators = get_all_creators_with_none()
     matching_creators = []
@@ -409,7 +408,6 @@ def creatordatabase():
 <body>
     <div class="header">
         <div>
-            <div class="tab">ISLANDS (48)</div>
             <div class="tab active">CREATORS ({len(creators)})</div>
         </div>
     </div>
