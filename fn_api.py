@@ -47,64 +47,7 @@ def get_base_url(artifactKey):
         return status, url_base, cookJobId, base
     else:
         return status, None, None, None
-    
-def get_creator_search(creatorterm):
-    global super_token, user_agent
-    url = 'https://fn-service-discovery-search-live-public.ogs.live.on.epicgames.com/api/v1/creators/search?accountId=1cf9d8e3f28f4f79934c4189adcb42f0'
-    json = {
-        "creatorTerm": creatorterm
-    }
-    headers = {
-        "Authorization": f"bearer {super_token}",
-        "User-Agent": f"{user_agent}"
-    }
-    w = session.post(url, json=json, headers=headers)
-    return w.json()['results']
 
-def info_creators(creatorid):
-    w = session.get(
-        f"https://pops-api-live-public.ogs.live.on.epicgames.com/page/v1/{creatorid}?playerId={client_id}&locale=en",
-        headers={"Authorization": f"Bearer {super_token}", "User-Agent": user_agent}
-    )
-    print(w.json())
-    print(w.status_code)
-    return w
-
-def info_creators_multiple(creators):
-    w = session.post(
-        f"https://pops-api-live-public.ogs.live.on.epicgames.com/page/v1?playerId={client_id}&locale=en",
-        headers={"Authorization": f"Bearer {super_token}", "User-Agent": user_agent, "X-Epic-Source-Client-Type": "fn-client"},
-        json={"playerIds": creators}
-    )
-    print(w.status_code)
-    
-    # Only print the first 100 characters of response for debugging
-    #response_preview = w.text[:100] + "..." if len(w.text) > 100 else w.text
-    #print(f"Response preview: {response_preview}")
-    
-    if "Operation access is limited by throttling policy" in w.text:
-        # Extract the wait time from the message
-        wait_time = 5  # Default wait time
-        try:
-            import re
-            wait_time_match = re.search(r'please try again in (\d+) second', w.text)
-            if wait_time_match:
-                wait_time = int(wait_time_match.group(1))
-                print(f"Extracted wait time: {wait_time} seconds")
-        except Exception as e:
-            print(f"Error extracting wait time: {e}")
-        
-        # Return a special dictionary to signal rate limiting with the extracted wait time
-        return {"rate_limited": True, "message": w.text, "wait_time": wait_time}
-    
-    # Try to parse the JSON response
-    try:
-        return w.json()
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        # Return a dictionary with error information
-        return {"error": "JSON decode error", "status_code": w.status_code, "message": w.text[:200]}
-    
 def island_data(link):
     global super_token
     response = session.get(f'https://content-service.bfda.live.use1a.on.epicgames.com/admin/api/content/link/{link}', headers={'cookie': f'content-service:access_token={super_token};'})
@@ -543,7 +486,7 @@ def GetTokenPCNotEG1():
             "grant_type": "device_auth",
             "device_id": "4b87e278a8a4487085a8d49946957912",
             "account_id": "1cf9d8e3f28f4f79934c4189adcb42f0",
-            "secret": "WL33ML7CS6MJSJBXLZC5EHTJPDGVLDH7",
+            "secret": "WL33ML7CS6MJSJBXLZC5EHTJPDGVLDH7"
         }
     ).json()
     return r['access_token']
@@ -610,13 +553,14 @@ def slug(code):
     w = session.get(url=f"https://affiliate-public-service-prod.ol.epicgames.com/affiliate/api/public/affiliates/slug/{code}",headers={"Authorization": f"Bearer {token}"})
     return w"""
 
+@staticmethod
 def creatormaps(creator):
     w = session.get(
         url=f'https://fn-service-discovery-live-public.ogs.live.on.epicgames.com/api/v1/creator/page/{creator}?playerId={client_id}&limit=99',
         headers={
             "Authorization": f"Bearer {super_token}"
         }
-    )
+    ).json()
     return w
 
 @staticmethod
@@ -685,6 +629,45 @@ async def island_more2(island):
             json=island
         ) as response:
             return await response.json()
+        
+def get_creator_search(creatorterm):
+    global super_token, user_agent
+    url = 'https://fn-service-discovery-search-live-public.ogs.live.on.epicgames.com/api/v1/creators/search?accountId=1cf9d8e3f28f4f79934c4189adcb42f0'
+    json = {
+        "creatorTerm": creatorterm
+    }
+    headers = {
+        "Authorization": f"bearer {super_token}",
+        "User-Agent": f"{user_agent}"
+    }
+    w = session.post(url, json=json, headers=headers)
+    print(w.json())
+    return w.json()['results']
+        
+def info_creators(creatorid):
+    w = session.get(
+        f"https://pops-api-live-public.ogs.live.on.epicgames.com/page/v1/{creatorid}?playerId={client_id}&locale=en",
+        headers={"Authorization": f"Bearer {super_token}", "User-Agent": user_agent}
+    )
+    return w
+
+def info_creators_multiple(creators):
+    w = session.post(
+        f"https://pops-api-live-public.ogs.live.on.epicgames.com/page/v1?playerId={client_id}&locale=en",
+        headers={"Authorization": f"Bearer {super_token}", "User-Agent": user_agent, "X-Epic-Source-Client-Type": "fn-client"},
+        json={"playerIds": creators}
+    )
+    return w.json()
+        
+def island_more1(island):
+    w = session.post(
+        url='https://links-public-service-live.ol.epicgames.com/links/api/fn/mnemonic?ignoreFailures=true',
+        headers={
+            "Authorization": f"Bearer {super_token}"
+        },
+        json=island
+    )
+    return w.json()
 
 def verify_token(token):
     w = session.get(
@@ -715,5 +698,4 @@ async def teak_complet():
         await asyncio.sleep(3600)
     
 def create_task():
-    loop = asyncio.get_event_loop()
-    loop.create_task(teak_complet())
+    asyncio.run(teak_complet())
