@@ -270,6 +270,7 @@ def run_async_task():
     loop = asyncio.new_event_loop()  # Create a new event loop
     asyncio.set_event_loop(loop)  
     loop.run_until_complete(fn_api.start_background_tasks())  # Run the async function
+    print('test')
     loop.close() 
 
 if __name__ == '__main__':
