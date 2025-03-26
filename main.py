@@ -269,8 +269,7 @@ def island_detail(code):
 def run_async_task():
     loop = asyncio.new_event_loop()  # Create a new event loop
     asyncio.set_event_loop(loop)  
-    loop.run_until_complete(fn_api.create_task())  # Run the async function
-    loop.run_until_complete(fn_api.teak_complet())
+    loop.run_until_complete(fn_api.start_background_tasks())  # Run the async function
     loop.close() 
 
 if __name__ == '__main__':
