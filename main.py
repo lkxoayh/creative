@@ -55,6 +55,7 @@ def info_creators_multiple(user_ids):
 
 @app.route('/search_creator')
 def search_creator():
+    time.sleep(0.1)
     query = request.args.get('name', '').strip().lower()
     creators = get_all_creators_with_none()
     matching_creators = []
@@ -408,6 +409,7 @@ def creatordatabase():
 <body>
     <div class="header">
         <div>
+            <div class="tab">ISLANDS (48)</div>
             <div class="tab active">CREATORS ({len(creators)})</div>
         </div>
     </div>
@@ -456,6 +458,12 @@ def island_detail(code):
     car = get_cached_island(island_code=code)
     metadata = car.get('metadata', {})
     creator_id = car['accountId']
+    type = car.get('linkType')
+    
+    if type == 'valkyrie:application':
+        type = "UEFN"
+    else:
+        type = "FNC"
     
     support_code = metadata.get("supportCode", "None")
     
@@ -471,7 +479,10 @@ def island_detail(code):
     
     if tags := car.get('descriptionTags'):
         if not tags == ['']:
-            tags = {", ".join(tags)}
+            tags1 = []
+            for tag in car.get('descriptionTags'):
+                tagsq = tag.upper()
+                tags1.append(tagsq)
     
     creation_date = (car.get('published') or car.get('created') or 'Unknown').split('T')[0]
     last_update = (car.get('lastActivatedDate') or car.get('created', 'Unknown')).split('T')[0]
@@ -498,11 +509,44 @@ def island_detail(code):
                     
     count_display = f"{round(play_counts/1000, 1)}K" if play_counts >= 1000 else str(play_counts)
     
+    text = metadata.get('tagline', 'Unknown Island')
+    
+    # Split by newlines and clean up
+    lines = [line.strip() for line in text.split('\n') if line.strip()]
+    
+    # Extract island name (first line)
+    name = lines[0] if lines else "Unknown Island"
+    
+    # Extract description (all lines except the first)
+    description = "\n".join(lines[1:]) if len(lines) > 1 else ""
+    
+    # Create taglines from the description
+    taglines = []
+    for line in description.split('\n'):
+        if line:
+            if len(line) > 50:
+                # Split long lines into shorter taglines
+                words = line.split()
+                current_tagline = ""
+                for word in words:
+                    if len(current_tagline + " " + word) <= 50:
+                        current_tagline += " " + word if current_tagline else word
+                    else:
+                        taglines.append(current_tagline)
+                        current_tagline = word
+                if current_tagline:
+                    taglines.append(current_tagline)
+            else:
+                taglines.append(line)
+    
     # Initialize the island object
     island = {
+        "tagline": taglines,
         "name": metadata.get('title', 'Unknown Island'),
-        "xp": _get_xp_status(metadata),
+        "xp_status": _get_xp_status(metadata),
         "image": _get_image(metadata),
+        "type": type,
+        "code": code,
         "creator": {
             "name": support_code,
             "logo": logo,
@@ -513,7 +557,10 @@ def island_detail(code):
         "release_date": creation_date,
         "updated_date": last_update,
         "player_count": count_display,
-        "tags": tags
+        "tags": tags1,
+        "max_players": "16",
+        "peak_24h": "0",  # Default value
+        "peak_all_time": "0"  # Default value
     }
     
     if video_uuid := metadata.get('video_vuid'):
