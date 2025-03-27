@@ -116,10 +116,10 @@ def _get_xp_status(metadata):
     if xp_data := metadata.get('dynamicXp', {}):
         if xp_phase := xp_data.get('calibrationPhase'):
             return {
-                'LiveXp': "<:xp:1068731097506127902>",
-                'DataGathering': "<:xp2:1068732482381430784>"
-            }.get(xp_phase, "<:xp2:1068732482381430784>")
-    return "<:xp2:1068732482381430784>"
+                'LiveXp': "Awaiting XP",
+                'DataGathering': "Awaiting XP"
+            }.get(xp_phase, "Awaiting XP")
+    return "Awaiting XP"
 
 async def _get_ratings(metadata):
     if ratings := metadata.get('ratings', {}).get('boards'):
