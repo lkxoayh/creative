@@ -715,7 +715,7 @@ def delete_token(token):
         url=f'https://account-public-service-prod.ol.epicgames.com/account/api/oauth/sessions/kill/{token}'
     )
 
-async def teak_complet(): 
+def teak_complet(): 
     while True:
         global super_token, super_token2, no_eg1_token, public_token, user_agent, version, digits, disco_token
         super_token = GetTokenPC()
@@ -727,7 +727,7 @@ async def teak_complet():
         #print(version + digits)
         disco_token = access_discovery(branch=f"++Fortnite+Release-{version}")
         print('Connected Fortnite Service !')
-        await asyncio.sleep(3600)
+        time.sleep(3600)
     
 def create_task():
     asyncio.run(teak_complet())
