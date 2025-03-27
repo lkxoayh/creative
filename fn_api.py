@@ -6,6 +6,7 @@ import ssl
 import json
 import time
 import asyncio
+import threading
 from asyncio import create_task
 
 session = requests.Session()
@@ -715,7 +716,7 @@ def delete_token(token):
         url=f'https://account-public-service-prod.ol.epicgames.com/account/api/oauth/sessions/kill/{token}'
     )
 
-def teak_complet(): 
+async def teak_complet(): 
     while True:
         global super_token, super_token2, no_eg1_token, public_token, user_agent, version, digits, disco_token
         super_token = GetTokenPC()
@@ -727,12 +728,13 @@ def teak_complet():
         #print(version + digits)
         disco_token = access_discovery(branch=f"++Fortnite+Release-{version}")
         print('Connected Fortnite Service !')
-        time.sleep(3600)
+        await asyncio.sleep(3600)
     
 def create_task():
     asyncio.run(teak_complet())
 
-teak_complet()
+thread = threading.Thread(target=teak_complet)
+thread.start()
 
 """super_token = GetTokenPC()
 no_eg1_token = GetTokenPCNotEG1()
