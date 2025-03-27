@@ -3,107 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ island.name }}</title>
+    <title>{{ island.name }} - Fortnite Island</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> <!-- HLS.js for M3U8 playback -->
     <style>
+        :root {
+            --primary-bg: #0a1227;
+            --card-bg: rgba(35, 45, 70, 0.8);
+            --accent-color: #1e90ff;
+            --tag-bg: #2d415e;
+            --checkmark-color: #4cd137;
+            --gold-color: #ffd700;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: #1a1a1a;
+            font-family: "Burbank Big Condensed", "Roboto Condensed", Arial, sans-serif;
+            background: var(--primary-bg) url('https://cdn2.unrealengine.com/stars-bg-739dc6596cf0.jpg');
+            background-size: cover;
+            background-attachment: fixed;
             color: white;
-            text-align: center;
             margin: 0;
             padding: 0;
-        }
-        .container {
-            max-width: 700px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #333;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        }
-        img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            object-fit: cover; /* Maintain aspect ratio */
-        }
-        .video-container {
-            margin-top: 20px;
-        }
-        iframe {
-            width: 100%;
-            height: 315px;
-            border-radius: 10px;
-            border: none;
-        }
-        .creator-box {
-            background: #222;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        .creator-logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #fff;
-        }
-        .social-links a {
-            color: #1e90ff;
-            text-decoration: none;
-            margin: 0 10px;
+            min-height: 100vh;
         }
         .back-button {
-            display: block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #555;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 4px;
+            background-color: #1e416e;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            width: auto;
+            font-size: 14px;
         }
+        
+        .back-button .esc-key {
+            background-color: #171717;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 3px;
+            margin-right: 10px;
+            text-transform: uppercase;
+        }
+        
         .back-button:hover {
-            background: #777;
+            background-color: #2a5897;
         }
-        .tags {
-            margin-top: 10px;
+        
+        .back-button:active {
+            background-color: #153251;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            gap: 20px;
+            width: 95%;
         }
-        .tag {
-            background: #444;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 5px;
-            font-size: 0.9em;
-        }
-        /* M3U8 Video Button */
-        .play-video-btn {
+        
+        .island-card {
+            flex: 1;
+            min-width: 300px;
             width: 100%;
-            height: 200px;
-            background-size: cover;
-            background-position: center;
+            background: var(--card-bg);
             border-radius: 10px;
-            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .island-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+        }
+        
+        .island-header {
+            padding: 20px;
             position: relative;
+            background: linear-gradient(to right, rgba(30, 144, 255, 0.2), transparent);
         }
-        .play-video-btn::after {
-            content: "▶";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 40px;
-            color: white;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+        
+        .island-title {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .by-creator {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .island-info {
+            padding: 0 20px 20px 20px;
+        }
+        
+        .island-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            transition: opacity 0.3s, transform 0.3s;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            max-height: 350px;
+        }
+        
+        .island-image:hover {
+            opacity: 0.95;
+            transform: scale(1.02);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .info-label {
+            color: #aaa;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .checkmark {
+            color: var(--checkmark-color);
+            font-size: 1.1rem;
+        }
+        
+        .island-code {
+            background: rgba(28, 39, 64, 0.8);
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s;
+        }
+        
+        .island-code:hover {
+            background: rgba(28, 39, 64, 1);
+        }
+        
+        .code-number {
+            font-family: monospace;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .copy-icon {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+        
+        .copy-icon:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .character-image {
+            flex: 0;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .character-image img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+        }
+        
+        .tag-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .category-tag {
+            background: var(--tag-bg);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background 0.3s;
+        }
+        
+        .category-tag:hover {
+            background: rgba(45, 65, 94, 0.9);
+        }
+        
+        .stats-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .player-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
         }
-        /* Modal */
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -111,18 +294,24 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             justify-content: center;
             align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
         }
+        
         .modal-content {
             position: relative;
             width: 80%;
-            max-width: 600px;
-            background: black;
+            max-width: 800px;
+            background: rgba(10, 18, 39, 0.95);
             border-radius: 10px;
-            padding: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
         }
+        
         .close-btn {
             position: absolute;
             top: 10px;
@@ -130,139 +319,487 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
+            z-index: 1001;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: background 0.3s;
         }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
         video {
             width: 100%;
             border-radius: 10px;
         }
-        /* Image Modal Specific Styles */
+        
         .image-modal-content {
             background: transparent;
-            max-width: 90%;
+            max-width: 60%;
             max-height: 90vh;
             padding: 0;
         }
+        
         #modalImage {
-            border-radius: 5px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            max-width: 100%;
+            max-height: 90vh;
+        }
+        
+        .play-now-btn {
+            display: block;
+            background: linear-gradient(45deg, #1e90ff, #4169e1);
+            color: white;
+            text-align: center;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            letter-spacing: 1px;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(30, 144, 255, 0.3);
+        }
+        
+        .play-now-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(30, 144, 255, 0.5);
+        }
+        
+        .trailer-btn-container {
+            margin: 20px 0;
+        }
+        
+        .play-trailer-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #ff1e1e, #e14141);
+            color: white;
+            text-align: center;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            letter-spacing: 1px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(255, 30, 30, 0.3);
+            width: 100%;
+        }
+        
+        .play-trailer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 30, 30, 0.5);
+        }
+        
+        .trailer-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        header {
+            background: transparent;
+            padding: 10px 20px;
+            text-align: left;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        
+        /* New layout styles */
+        .creator-image-container {
+            display: flex;
+            flex-direction: row;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .creator-info {
+            flex: 3;
+            padding: 25px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 300px;
+        }
+        
+        .island-image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            min-width: 500px;
+            max-width: 30%;
+        }
+        
+        .creator-header {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+        
+        .creator-name {
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .island-description {
+            padding: 20px;
+            background: rgba(28, 39, 64, 0.5);
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .creator-image-container {
+                flex-direction: column;
+            }
+            
+            .creator-info {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 20px 15px;
+            }
+            
+            .island-image-container {
+                max-width: 100%;
+                padding: 20px;
+                margin: 0 auto;
+            }
+            
+            .container {
+                padding: 10px;
+                margin: 70px auto;
+            }
+            
+            .island-card {
+                margin-bottom: 10px;
+            }
+            
+            .island-image {
+                max-width: 400px;
+                margin: 0 auto;
+                display: block;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .player-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stat-item {
+                padding-bottom: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .stat-item:last-child {
+                border-bottom: none;
+            }
+            
+            .island-image-container {
+                padding: 15px 15px 25px 15px;
+                min-width: 380px;
+            }
+            
+            .island-image {
+                max-height: 250px;
+                object-fit: contain;
+                margin: 0 auto;
+                display: block;
+                max-width: 100%;
+            }
+        }
+        
+        @media screen and (max-width: 390px) {
+            .container {
+                padding: 10px;
+                margin: 70px auto;
+                width: 98%;
+            }
+            
+            .island-header {
+                padding: 15px;
+            }
+            
+            .island-title {
+                font-size: 1.5rem;
+            }
+            
+            .creator-header {
+                font-size: 1.5rem;
+            }
+            
+            .creator-name {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            .info-label {
+                font-size: 0.8rem;
+            }
+            
+            .info-value {
+                font-size: 0.9rem;
+            }
+            
+            .info-grid {
+                gap: 10px;
+                margin: 15px 0;
+            }
+            
+            .creator-info {
+                padding: 15px;
+            }
+            
+            .island-image-container {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
+    <header>
+        <a href="/creator/{{ island.creator.name }}" class="back-button">
+            <span class="esc-key">ESC</span>
+            BACK
+        </a>
+    </header>
+    
     <div class="container">
-        <!-- Island Name -->
-        <h1>{{ island.name }}</h1>
-        
-        <!-- Creator Information -->
-        <h2>Created by {{ island.creator.name }}</h2>
-        
-        <script>
-            // Image Modal open/close functions
-            function openImageModal(imageSrc) {
-                const modal = document.getElementById('imageModal');
-                const modalImage = document.getElementById('modalImage');
-                modal.style.display = 'flex';
-                modalImage.src = imageSrc;
-            }
-
-            function closeImageModal() {
-                const modal = document.getElementById('imageModal');
-                modal.style.display = 'none';
-            }
+        <div class="island-card">
+            <div class="island-header">
+                <h1 class="island-title">{{ island.name }}</h1>
+                
+                <div class="tag-section">
+                    {% for tag in island.tags %}
+                        <div class="category-tag">{{ tag }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="info-grid">
+                    {% for tag in island.tagline %}
+                        <div class="info-item">
+                            <span class="info-value">{{ tag }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
             
-            // Video Modal open/close functions
-            function openVideoModal(videoUrl) {
-                const modal = document.getElementById("videoModal");
-                const video = document.getElementById("videoPlayer");
-
-                modal.style.display = "flex"; // Open modal
-
-                // Reset video source before attaching new source
-                video.src = "";
-                video.load(); // Reload video element
-
-                // Use HLS.js for M3U8 playback
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(videoUrl);
-                    hls.attachMedia(video);
-
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        video.play(); // Play the video once loaded
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = videoUrl; // Fallback for native support
-                    video.play();
-                }
-            }
-
-            function closeVideoModal() {
-                const modal = document.getElementById("videoModal");
-                const video = document.getElementById("videoPlayer");
-
-                modal.style.display = "none"; // Close modal
-                video.pause(); // Pause video
-                video.src = ""; // Clear video source
-                video.load(); // Reset video element
-            }
-
-            window.onclick = function(event) {
-                const videoModal = document.getElementById("videoModal");
-                const imageModal = document.getElementById("imageModal");
+            <div class="creator-image-container">
+                <div class="creator-info">
+                    <div class="creator-header">BY CREATOR</div>
+                    <p class="creator-name">{{ island.creator.name }}</p>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div>
+                                <div class="info-label">CREATED IN:</div>
+                                <div class="info-value">{{ island.type }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <div class="info-label">MAX PLAYERS:</div>
+                                <div class="info-value">{{ island.max_players }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <div class="info-label">RELEASE DATE:</div>
+                                <div class="info-value">{{ island.release_date }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <div class="info-label">AGE RATING:</div>
+                                <div class="info-value">Teen / 12<span>▾</span></div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <div class="info-label">LAST UPDATE:</div>
+                                <div class="info-value">{{ island.updated_date }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <div class="info-label">XP STATUS:</div>
+                                <div class="info-value">{{ island.xp_status }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="island-code">
+                        <span class="code-number">{{ island.code }}</span>
+                        <span class="copy-icon">📋</span>
+                    </div>
+                    
+                    {% if island.m3u8_url %}
+                    <div class="trailer-btn-container">
+                        <button class="play-trailer-btn" onclick="openVideoModal('{{ island.m3u8_url }}')">
+                            <span class="trailer-icon">▶</span>
+                            WATCH TRAILER
+                        </button>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="stats-section">
+                        <h3>PLAYER COUNT</h3>
+                        <div class="player-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ island.player_count }}</div>
+                                <div class="stat-label">PLAYERS RIGHT NOW</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ island.peak_24h }}</div>
+                                <div class="stat-label">24-HOUR PEAK</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ island.peak_all_time }}</div>
+                                <div class="stat-label">ALL-TIME PEAK</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                if (event.target === videoModal) {
-                    closeVideoModal(); // Close video modal when clicked outside
-                }
-                
-                if (event.target === imageModal) {
-                    closeImageModal(); // Close image modal when clicked outside
-                }
-            }
-        </script>
-
-        <img src="{{ island.image }}" alt="{{ island.name }}" onclick="openImageModal('{{ island.image }}')">
-        
-        <p><strong>Code:</strong> {{ code }}</p>
-        <p><strong>Release Date:</strong> {{ island.release_date }}</p>
-        <p><strong>Last Updated:</strong> {{ island.updated_date }}</p>
-        <p><strong>Player Count:</strong> {{ island.player_count }}</p>
-        <p>{{ island.description }}</p>
-
-        {% if island.m3u8_url and island.image %}
-        <div class="play-video-btn" onclick="openVideoModal('{{ island.m3u8_url }}')" style="background-image:url('{{ island.image }}')"></div>
-        {% endif %}
-
-        <div class="tags">
-            {% for tag in island.tags %}
-                <span class="tag">{{ tag }}</span>
-            {% endfor %}
-        </div>
-
-        <div class="creator-box">
-            <img src="{{ island.creator.logo }}" alt="Creator Logo" class="creator-logo">
-            <p>{{ island.creator.bio }}</p>
-            <div class="social-links">
-                {% if island.creator.social.youtube and island.creator.social.youtube != 'None' %}
-                    <a href="{{ island.creator.social.youtube }}" target="_blank">YouTube</a>
-                {% endif %}
-                {% if island.creator.social.twitter and island.creator.social.twitter != 'None' %}
-                    <a href="{{ island.creator.social.twitter }}" target="_blank">Twitter</a>
-                {% endif %}
-                {% if island.creator.social.discord and island.creator.social.discord != 'None' %}
-                    <a href="{{ island.creator.social.discord }}" target="_blank">Discord</a>
-                {% endif %}
-                {% if island.creator.social.tiktok and island.creator.social.tiktok != 'None' %}
-                    <a href="{{ island.creator.social.tiktok }}" target="_blank">TikTok</a>
-                {% endif %}
-                {% if island.creator.social.instagram and island.creator.social.instagram != 'None' %}
-                    <a href="{{ island.creator.social.instagram }}" target="_blank">Instagram</a>
-                {% endif %}
+                <div class="island-image-container">
+                    <img src="{{ island.image }}" alt="{{ island.name }}" class="island-image" onclick="openImageModal('{{ island.image }}')">
+                </div>
+            </div>
+            
+            <div class="island-description">
+                <p>{{ island.description }}</p>
             </div>
         </div>
-
-        <a class="back-button" href="/creator/{{island.creator.name}}">Back to Creator</a>
     </div>
 
+    <script>
+        // Initialize creator object from template variables
+        var creator = { featured: [], picks: [] };
+
+        // Use a separate script block with type="application/json" to inject data from Jinja
+        
+        // Add ESC key listener for back functionality - using keyup to prevent multiple triggers when held
+        let escPressed = false;
+        
+        document.addEventListener('keydown', function(event) {
+            // Check if ESC key was pressed (key code 27) and not already pressed
+            if ((event.key === "Escape" || event.keyCode === 27) && !escPressed) {
+                escPressed = true;
+            }
+        });
+        
+        document.addEventListener('keyup', function(event) {
+            // Only navigate when the ESC key is released
+            if ((event.key === "Escape" || event.keyCode === 27) && escPressed) {
+                // Navigate back to the same location as the back button
+                window.location.href = document.querySelector('.back-button').getAttribute('href');
+                escPressed = false;
+            }
+        });
+    </script>
+
+    <script>
+        // Image modal functions
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImage.src = imageSrc;
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+        
+        // Video modal functions
+        function openVideoModal(videoUrl) {
+            const modal = document.getElementById("videoModal");
+            const video = document.getElementById("videoPlayer");
+
+            modal.style.display = "flex"; // Open modal
+
+            // Reset video source before attaching new source
+            video.src = "";
+            video.load(); // Reload video element
+
+            // Use HLS.js for M3U8 playback
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoUrl);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    video.play(); // Play the video once loaded
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoUrl; // Fallback for native support
+                video.play();
+            }
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById("videoModal");
+            const video = document.getElementById("videoPlayer");
+
+            modal.style.display = "none"; // Close modal
+            video.pause(); // Pause video
+            video.src = ""; // Clear video source
+            video.load(); // Reset video element
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const videoModal = document.getElementById("videoModal");
+            const imageModal = document.getElementById("imageModal");
+            
+            if (event.target === videoModal) {
+                closeVideoModal(); // Close video modal when clicked outside
+            }
+            
+            if (event.target === imageModal) {
+                closeImageModal(); // Close image modal when clicked outside
+            }
+        }
+        
+        // Add copy code functionality
+        document.querySelector('.copy-icon').addEventListener('click', function() {
+            const codeText = document.querySelector('.code-number').textContent;
+            navigator.clipboard.writeText(codeText).then(function() {
+                alert('Island code copied to clipboard!');
+            });
+        });
+    </script>
+    
     <!-- M3U8 Video Modal -->
     <div id="videoModal" class="modal">
         <div class="modal-content">
@@ -275,7 +812,7 @@
     <div id="imageModal" class="modal">
         <div class="modal-content image-modal-content">
             <span class="close-btn" onclick="closeImageModal()">&times;</span>
-            <img id="modalImage" style="width:70%; max-height:80vh; object-fit:contain;" src=""/>
+            <img id="modalImage" src=""/>
         </div>
     </div>
 </body>
