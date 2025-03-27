@@ -755,10 +755,6 @@
         flex-direction: column
     }
 
-    .creator-title {
-        text-align: center
-    }
-
     .creator-socials {
         justify-content: center
     }
